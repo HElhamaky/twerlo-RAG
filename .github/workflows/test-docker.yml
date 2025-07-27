@@ -1,0 +1,63 @@
+name: Test Docker Image
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Image"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  test-docker:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Pull and test Docker image
+      run: |
+        # Pull the latest image
+        docker pull helhamaky/twerlo-app:latest
+        
+        # Test the image runs
+        docker run --rm helhamaky/twerlo-app:latest python -c "
+        import numpy
+        import chromadb
+        from app.main import app
+        print('✅ All imports successful')
+        print('✅ Docker image test passed')
+        "
+        
+    - name: Test API endpoints
+      run: |
+        # Start the container in background
+        docker run -d --name test-container -p 8000:8000 helhamaky/twerlo-app:latest
+        
+        # Wait for container to start
+        sleep 10
+        
+        # Test health endpoint
+        curl -f http://localhost:8000/health || exit 1
+        
+        # Test root endpoint
+        curl -f http://localhost:8000/ || exit 1
+        
+        # Clean up
+        docker stop test-container
+        docker rm test-container
+        
+        echo "✅ API endpoints test passed"
+        
+    - name: Test with docker-compose
+      run: |
+        # Test docker-compose
+        docker-compose up -d
+        sleep 15
+        
+        # Test endpoints
+        curl -f http://localhost:8000/health || exit 1
+        
+        # Clean up
+        docker-compose down
+        
+        echo "✅ Docker Compose test passed" 
