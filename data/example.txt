@@ -1,0 +1,32 @@
+FastAPI RAG System Documentation
+
+This is an example document for testing the FastAPI RAG (Retrieval-Augmented Generation) system. The system allows users to upload documents, generate embeddings, and ask questions about the content.
+
+Key Features:
+1. User Authentication - JWT-based authentication with secure password hashing
+2. Document Upload - Support for PDF and TXT files with automatic text extraction
+3. Vector Storage - ChromaDB integration for efficient similarity search
+4. Question Answering - OpenAI-powered RAG system with context retrieval
+5. Query Logging - Automatic logging of all queries with response times
+6. User Isolation - Each user's documents are isolated from others
+
+Technical Stack:
+- Backend: FastAPI
+- LLM: OpenAI API (GPT-3.5-turbo)
+- Embeddings: OpenAI text-embedding-3-small
+- Vector Database: ChromaDB (local persistence)
+- Database: SQLite with SQLAlchemy ORM
+- Authentication: JWT with bcrypt password hashing
+- Document Parsing: PyPDF2 for PDFs, direct text reading for TXT files
+
+The system processes documents by:
+1. Extracting text from uploaded files (PDF or TXT)
+2. Splitting text into chunks with overlap
+3. Generating embeddings for each chunk
+4. Storing chunks and embeddings in ChromaDB
+5. When questions are asked, the system:
+   - Generates embeddings for the question
+   - Searches for similar document chunks
+   - Uses the retrieved context to generate answers with OpenAI
+
+This approach ensures that users can ask questions about their uploaded documents and receive accurate, context-aware responses based on the actual content of their files. 
