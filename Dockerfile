@@ -1,13 +1,25 @@
 # Multi-stage build for production
 FROM node:18-alpine AS frontend-builder
+
+# Set working directory
 WORKDIR /app/frontend
+
+# Copy package files first for better caching
 COPY frontend/package*.json ./
-RUN npm ci --only=production
+
+# Install all dependencies (including dev dependencies) for building
+RUN npm ci --verbose
+
+# Copy frontend source code
 COPY frontend/ ./
+
+# Build the frontend application
 RUN npm run build
 
 # Production stage
 FROM python:3.9-slim
+
+# Set working directory
 WORKDIR /app
 
 # Install system dependencies

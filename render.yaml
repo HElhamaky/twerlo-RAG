@@ -4,7 +4,6 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    dockerCommand: ./start.sh
     envVars:
       - key: NODE_ENV
         value: production
@@ -21,6 +20,4 @@ services:
       - key: CORS_ORIGINS
         value: "https://twerlo-app.onrender.com"
     healthCheckPath: /
-    autoDeploy: true
-    buildCommand: docker build -t twerlo-app .
-    startCommand: docker run -p $PORT:3000 -p 8000:8000 twerlo-app 
+    autoDeploy: true 
