@@ -7,7 +7,7 @@ from app.db.models import User
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.core.config import settings
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+router = APIRouter(tags=["authentication"])
 
 class UserRegister(BaseModel):
     email: str
@@ -24,10 +24,10 @@ class Token(BaseModel):
 class UserResponse(BaseModel):
     message: str
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register", response_model=Token)
 def register(user_data: UserRegister, db: Session = Depends(get_db)):
     """Register a new user."""
-    # Check if user already exists
+    # Check if user already exists by email
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
         raise HTTPException(
@@ -46,7 +46,10 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {"message": "User registered successfully"}
+        
+        # Create access token for the new user
+        access_token = create_access_token(data={"sub": str(new_user.id)})
+        return {"access_token": access_token, "token_type": "bearer"}
     except Exception as e:
         db.rollback()
         raise HTTPException(
@@ -55,10 +58,10 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
         )
 
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(user_data: UserLogin, db: Session = Depends(get_db)):
     """Login user and return access token."""
     # Find user by email
-    user = db.query(User).filter(User.email == form_data.username).first()
+    user = db.query(User).filter(User.email == user_data.email).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -67,7 +70,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         )
     
     # Verify password
-    if not verify_password(form_data.password, user.hashed_password):
+    if not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

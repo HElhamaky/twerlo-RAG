@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: twerlo-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: ./start.sh
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: DATABASE_URL
+        value: sqlite:///./data/twerlo.db
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      - key: CORS_ORIGINS
+        value: "https://twerlo-app.onrender.com"
+    healthCheckPath: /
+    autoDeploy: true
+    buildCommand: docker build -t twerlo-app .
+    startCommand: docker run -p $PORT:3000 -p 8000:8000 twerlo-app 

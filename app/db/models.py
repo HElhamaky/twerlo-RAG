@@ -10,8 +10,24 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     
-    # Relationship to QueryLog
+    # Relationships
     query_logs = relationship("QueryLog", back_populates="user")
+    documents = relationship("Document", back_populates="user")
+
+class Document(Base):
+    __tablename__ = "documents"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String, nullable=False)
+    original_filename = Column(String, nullable=False)
+    file_size = Column(Integer, nullable=False)
+    file_type = Column(String, nullable=False)
+    chunks_count = Column(Integer, default=0)
+    uploaded_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    # Relationship to User
+    user = relationship("User", back_populates="documents")
 
 class QueryLog(Base):
     __tablename__ = "query_logs"

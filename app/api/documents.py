@@ -4,18 +4,53 @@ from pydantic import BaseModel
 import PyPDF2
 import io
 import uuid
+import os
 from typing import List
+from datetime import datetime
 from app.db.database import get_db
-from app.db.models import User
+from app.db.models import User, Document
 from app.core.security import get_current_user
 from app.core.llm_utils import generate_embeddings, split_text_into_chunks
 from app.services.vector_store import vector_store
 
-router = APIRouter(prefix="/documents", tags=["documents"])
+router = APIRouter(tags=["documents"])
 
 class UploadResponse(BaseModel):
     message: str
     chunks_processed: int
+
+class DocumentInfo(BaseModel):
+    id: int
+    filename: str
+    size: int
+    uploaded_at: datetime
+    chunks_count: int
+
+@router.get("/", response_model=List[DocumentInfo])
+async def list_documents(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """List all documents for the current user."""
+    try:
+        # Query actual documents from database
+        documents = db.query(Document).filter(Document.user_id == current_user.id).all()
+        
+        return [
+            DocumentInfo(
+                id=doc.id,
+                filename=doc.original_filename,
+                size=doc.file_size,
+                uploaded_at=doc.uploaded_at,
+                chunks_count=doc.chunks_count
+            )
+            for doc in documents
+        ]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error listing documents: {str(e)}"
+        )
 
 @router.post("/upload", response_model=UploadResponse)
 async def upload_document(
@@ -44,6 +79,7 @@ async def upload_document(
     try:
         # Read file content
         content = await file.read()
+        file_size = len(content)
         
         # Parse content based on file type
         if file_extension == 'pdf':
@@ -102,6 +138,20 @@ async def upload_document(
             metadatas=metadatas,
             ids=ids
         )
+        
+        # Save document info to database
+        db_document = Document(
+            filename=f"{uuid.uuid4().hex}_{file.filename}",
+            original_filename=file.filename,
+            file_size=file_size,
+            file_type=file_extension,
+            chunks_count=len(chunks),
+            user_id=current_user.id
+        )
+        
+        db.add(db_document)
+        db.commit()
+        db.refresh(db_document)
         
         return UploadResponse(
             message="File processed successfully",

@@ -10,7 +10,7 @@ from app.core.llm_utils import generate_embeddings, get_llm_response
 from app.services.vector_store import vector_store
 from app.core.config import settings
 
-router = APIRouter(prefix="/qa", tags=["question-answering"])
+router = APIRouter(tags=["question-answering"])
 
 class QuestionRequest(BaseModel):
     question: str

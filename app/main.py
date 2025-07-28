@@ -8,48 +8,34 @@ import os
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
-# Create FastAPI app
-app = FastAPI(
-    title="FastAPI RAG System",
-    description="A Retrieval-Augmented Generation system with document upload and question answering",
-    version="1.0.0"
-)
+app = FastAPI(title="Twerlo API", version="1.0.0")
 
-# Add CORS middleware
+# Get CORS origins from environment or use defaults
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+cors_origins.append("*")  # Allow all origins for development
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure this properly for production
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Include routers
-app.include_router(auth.router)
-app.include_router(documents.router)
-app.include_router(qa.router)
+app.include_router(auth.router, prefix="/auth", tags=["authentication"])
+app.include_router(documents.router, prefix="/documents", tags=["documents"])
+app.include_router(qa.router, prefix="/qa", tags=["qa"])
 
 @app.get("/")
 async def root():
-    """Root endpoint with API information."""
-    return {
-        "message": "FastAPI RAG System",
-        "version": "1.0.0",
-        "endpoints": {
-            "auth": {
-                "register": "POST /auth/register",
-                "login": "POST /auth/login"
-            },
-            "documents": {
-                "upload": "POST /documents/upload"
-            },
-            "qa": {
-                "ask": "POST /qa/ask"
-            }
-        }
-    }
+    return {"message": "Twerlo API is running"}
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"} 
+    return {"status": "healthy", "message": "Twerlo API is operational"}
+
+@app.get("/cors-test")
+async def cors_test():
+    return {"message": "CORS is working correctly"} 
