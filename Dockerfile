@@ -13,8 +13,15 @@ RUN npm ci --verbose
 # Copy frontend source code
 COPY frontend/ ./
 
+# Ensure public directory exists
+RUN mkdir -p public
+
 # Build the frontend application
 RUN npm run build
+
+# Verify build output
+RUN ls -la
+RUN ls -la public/ || echo "Public directory not found"
 
 # Production stage
 FROM python:3.9-slim
