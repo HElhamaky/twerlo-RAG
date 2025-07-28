@@ -1,0 +1,22 @@
+services:
+  app:
+    image: helhamaky/twerlo-app:latest
+    ports:
+      - "8000:8000"  # Backend API
+      - "3000:3000"  # Frontend
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - DATABASE_URL=sqlite:///./data/twerlo.db
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - CORS_ORIGINS=${CORS_ORIGINS}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3 

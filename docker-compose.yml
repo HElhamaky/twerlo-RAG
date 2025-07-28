@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image: helhamaky/twerlo-app:latest
     ports:
       - "8000:8000"  # Backend API
       - "3000:3000"  # Frontend
