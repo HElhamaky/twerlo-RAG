@@ -18,6 +18,7 @@ export async function GET(
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': request.headers.get('authorization') || '',
       },
       signal: AbortSignal.timeout(10000), // 10 second timeout
     })
@@ -72,7 +73,7 @@ export async function POST(
           'Authorization': request.headers.get('authorization') || '',
         },
         body: formData,
-        signal: AbortSignal.timeout(30000), // 30 second timeout for uploads
+        signal: AbortSignal.timeout(180000), // 3 minute timeout for uploads
       })
       
       console.log(`Backend response status: ${response.status}`)
@@ -93,6 +94,15 @@ export async function POST(
       }
     } catch (error) {
       console.error('File upload error:', error)
+      
+      // Handle timeout errors specifically
+      if (error instanceof Error && error.name === 'TimeoutError') {
+        return NextResponse.json(
+          { error: 'File upload timed out. Please try with a smaller file or check your connection.', details: 'Upload timeout after 3 minutes' },
+          { status: 408 }
+        )
+      }
+      
       return NextResponse.json(
         { error: 'File upload failed', details: error instanceof Error ? error.message : String(error) },
         { status: 500 }
