@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-// API base URL - will work in both development and Docker
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// API base URL - will work in both development and production
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+    ? 'http://localhost:8000' 
+    : 'https://twerlo-rag.onrender.com');
 
 // Create axios instance
 export const api = axios.create({
