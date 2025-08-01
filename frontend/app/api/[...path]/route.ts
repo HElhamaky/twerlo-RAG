@@ -117,27 +117,28 @@ export async function POST(
         signal: AbortSignal.timeout(10000), // 10 second timeout
       })
     
-    console.log(`Backend response status: ${response.status}`)
-    
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type')
-    if (contentType && contentType.includes('application/json')) {
-      const data = await response.json()
-      return NextResponse.json(data, { status: response.status })
-    } else {
-      // Handle non-JSON responses (like HTML error pages)
-      const text = await response.text()
-      console.log(`Non-JSON response:`, text.substring(0, 200))
+      console.log(`Backend response status: ${response.status}`)
+      
+      // Check if response is JSON
+      const responseContentType = response.headers.get('content-type')
+      if (responseContentType && responseContentType.includes('application/json')) {
+        const data = await response.json()
+        return NextResponse.json(data, { status: response.status })
+      } else {
+        // Handle non-JSON responses (like HTML error pages)
+        const text = await response.text()
+        console.log(`Non-JSON response:`, text.substring(0, 200))
+        return NextResponse.json(
+          { error: 'Backend returned non-JSON response', details: text.substring(0, 500) },
+          { status: response.status }
+        )
+      }
+    } catch (error) {
+      console.error('Backend connection error:', error)
       return NextResponse.json(
-        { error: 'Backend returned non-JSON response', details: text.substring(0, 500) },
-        { status: response.status }
+        { error: 'Backend service unavailable', details: error instanceof Error ? error.message : String(error) },
+        { status: 503 }
       )
     }
-  } catch (error) {
-    console.error('Backend connection error:', error)
-    return NextResponse.json(
-      { error: 'Backend service unavailable', details: error instanceof Error ? error.message : String(error) },
-      { status: 503 }
-    )
   }
 } 
