@@ -355,9 +355,9 @@ export default function ChatPage() {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Chat Header */}
-        <div className="bg-white border-b border-gray-200 p-6">
+      <div className="flex-1 flex flex-col bg-white">
+        {/* Chat Header - Fixed */}
+        <div className="bg-white border-b border-gray-200 p-6 flex-shrink-0">
           <div className="flex items-center">
             <MessageCircle size={24} className="text-blue-600 mr-3" />
             <h2 className="text-xl font-semibold text-gray-900">Chat with AI</h2>
@@ -367,51 +367,53 @@ export default function ChatPage() {
           </p>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.length === 0 ? (
-            <div className="text-center py-12">
-              <MessageCircle size={48} className="text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Start a conversation
-              </h3>
-              <p className="text-gray-500">
-                Upload documents and ask questions to get started
-              </p>
-            </div>
-          ) : (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+        {/* Messages - Scrollable Area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-4 min-h-full">
+            {messages.length === 0 ? (
+              <div className="text-center py-12">
+                <MessageCircle size={48} className="text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Start a conversation
+                </h3>
+                <p className="text-gray-500">
+                  Upload documents and ask questions to get started
+                </p>
+              </div>
+            ) : (
+              messages.map((message) => (
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    message.role === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 text-gray-900'
-                  }`}
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <p className="text-sm">{message.content}</p>
-                  <p className="text-xs opacity-70 mt-1">
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
+                  <div
+                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      message.role === 'user'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-900'
+                    }`}
+                  >
+                    <p className="text-sm">{message.content}</p>
+                    <p className="text-xs opacity-70 mt-1">
+                      {message.timestamp.toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-200 text-gray-900 max-w-xs lg:max-w-md px-4 py-2 rounded-lg">
+                  <p className="text-sm">Thinking...</p>
                 </div>
               </div>
-            ))
-          )}
-          {loading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-200 text-gray-900 max-w-xs lg:max-w-md px-4 py-2 rounded-lg">
-                <p className="text-sm">Thinking...</p>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
+            )}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
 
-        {/* Input Area */}
-        <div className="bg-white border-t border-gray-200 p-6">
+        {/* Input Area - Fixed */}
+        <div className="bg-white border-t border-gray-200 p-6 flex-shrink-0">
           <div className="flex space-x-4">
             <div className="flex-1">
               <textarea
