@@ -39,19 +39,23 @@ export async function POST(
   { params }: { params: { path: string[] } }
 ) {
   const path = params.path.join('/')
-  const body = await request.json()
+    const body = await request.json()
   
   console.log(`Proxying POST request to: ${BACKEND_URL}/${path}`)
   console.log(`Environment: ${process.env.NODE_ENV}, Backend URL: ${BACKEND_URL}`)
+  console.log(`Request body:`, body)
+  console.log(`Body type:`, typeof body)
+  
+  // Ensure body is properly formatted
+  const requestBody = typeof body === 'string' ? body : JSON.stringify(body)
   
   try {
     const response = await fetch(`${BACKEND_URL}/${path}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...Object.fromEntries(request.headers.entries()),
       },
-      body: JSON.stringify(body),
+      body: requestBody,
       signal: AbortSignal.timeout(10000), // 10 second timeout
     })
     
