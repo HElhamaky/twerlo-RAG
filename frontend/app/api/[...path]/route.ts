@@ -117,15 +117,16 @@ export async function POST(
     // Ensure body is properly formatted
     const requestBody = typeof body === 'string' ? body : JSON.stringify(body)
     
-    try {
-      const response = await fetch(`${BACKEND_URL}/${path}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: requestBody,
-        signal: AbortSignal.timeout(10000), // 10 second timeout
-      })
+          try {
+        const response = await fetch(`${BACKEND_URL}/${path}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': request.headers.get('authorization') || '',
+          },
+          body: requestBody,
+          signal: AbortSignal.timeout(10000), // 10 second timeout
+        })
     
       console.log(`Backend response status: ${response.status}`)
       
