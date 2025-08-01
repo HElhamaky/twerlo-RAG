@@ -1,6 +1,12 @@
 #!/bin/bash
+set -e
 
 echo "Starting Twerlo application..."
+
+# Initialize database
+echo "Initializing database..."
+cd /app
+python -m app.db.init_db
 
 # Start the backend API server
 echo "Starting backend..."

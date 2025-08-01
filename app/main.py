@@ -3,10 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, documents, qa
 from app.db.database import engine
 from app.db.models import Base
+from app.db.init_db import init_database
 import os
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Initialize database
+init_database()
 
 app = FastAPI(title="Twerlo API", version="1.0.0")
 

@@ -55,11 +55,12 @@ RUN npm ci --only=production
 
 # Create data directory
 WORKDIR /app
-RUN mkdir -p data/chroma_db
+RUN mkdir -p data/chroma_db && chmod 755 data
 
-# Copy startup script
+# Copy startup script and ensure proper line endings
 COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+RUN chmod +x /app/start.sh && \
+    sed -i 's/\r$//' /app/start.sh
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -70,4 +71,4 @@ ENV PORT=3000
 EXPOSE 3000 8000
 
 # Start the application
-CMD ["./start.sh"] 
+CMD ["/bin/bash", "/app/start.sh"] 

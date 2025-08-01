@@ -4,7 +4,6 @@ const nextConfig = {
     outputFileTracingRoot: undefined,
   },
   output: 'standalone',
-  telemetry: false,
 }
 
 module.exports = nextConfig 

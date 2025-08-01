@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     
     # Database Configuration
     chroma_db_path: str = os.getenv("CHROMA_DB_PATH", "data/chroma_db")
-    database_url: str = "sqlite:///./rag_app.db"
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./data/twerlo.db")
     
     # LLM Configuration - Using optimized models
     llm_model: str = os.getenv("LLM_MODEL", "gpt-4o-mini")  # Cost-effective GPT-4 model
