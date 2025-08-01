@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
 
 export async function GET(
   request: NextRequest,
@@ -9,6 +9,8 @@ export async function GET(
   const path = params.path.join('/')
   const url = new URL(request.url)
   const queryString = url.search
+  
+  console.log(`Proxying GET request to: ${BACKEND_URL}/${path}${queryString}`)
   
   try {
     const response = await fetch(`${BACKEND_URL}/${path}${queryString}`, {
@@ -19,10 +21,12 @@ export async function GET(
     })
     
     const data = await response.json()
+    console.log(`Backend response status: ${response.status}`)
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
+    console.error('Backend connection error:', error)
     return NextResponse.json(
-      { error: 'Backend service unavailable' },
+      { error: 'Backend service unavailable', details: error.message },
       { status: 503 }
     )
   }
@@ -35,6 +39,8 @@ export async function POST(
   const path = params.path.join('/')
   const body = await request.json()
   
+  console.log(`Proxying POST request to: ${BACKEND_URL}/${path}`)
+  
   try {
     const response = await fetch(`${BACKEND_URL}/${path}`, {
       method: 'POST',
@@ -46,10 +52,12 @@ export async function POST(
     })
     
     const data = await response.json()
+    console.log(`Backend response status: ${response.status}`)
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
+    console.error('Backend connection error:', error)
     return NextResponse.json(
-      { error: 'Backend service unavailable' },
+      { error: 'Backend service unavailable', details: error.message },
       { status: 503 }
     )
   }
