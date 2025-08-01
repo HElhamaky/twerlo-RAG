@@ -23,5 +23,7 @@ services:
         value: "/api"
       - key: BACKEND_URL
         value: "http://127.0.0.1:8000"
+      - key: OPENAI_API_KEY
+        sync: false
     healthCheckPath: /health
     autoDeploy: true 
